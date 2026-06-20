@@ -30,7 +30,7 @@
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/yourusername/megarepomind
+git clone https://github.com/HKanaparthi/megarepomind
 cd megarepomind
 cp .env.example .env
 ```
