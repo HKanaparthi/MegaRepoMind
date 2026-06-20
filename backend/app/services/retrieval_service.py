@@ -31,6 +31,7 @@ async def retrieve_chunks(db: AsyncSession, repository_id: str, question: str) -
         "top_k": settings.TOP_K_CHUNKS,
     })
 
+    SKIP_LANGUAGES = {"css", "html"}
     rows = result.fetchall()
     return [
         {
@@ -43,5 +44,5 @@ async def retrieve_chunks(db: AsyncSession, repository_id: str, question: str) -
             "score": float(row.score),
         }
         for row in rows
-        if float(row.score) > 0.3  # filter low-relevance chunks
+        if float(row.score) > 0.15 and row.language not in SKIP_LANGUAGES
     ]

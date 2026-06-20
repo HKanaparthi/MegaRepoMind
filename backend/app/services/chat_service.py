@@ -24,14 +24,45 @@ async def answer_question(
     question: str,
     conversation_history: list[dict],
 ) -> tuple[str, list[dict]]:
+    repo_result = await db.execute(select(Repository).where(Repository.id == repository_id))
+    repo = repo_result.scalar_one_or_none()
+
     chunks = await retrieve_chunks(db, repository_id, question)
 
+    repo_header = ""
+    if repo and repo.summary:
+        repo_header = f"Repository: {repo.name}\nSummary: {repo.summary}\n"
+        if repo.tech_stack:
+            repo_header += f"Tech stack: {repo.tech_stack}\n"
+        repo_header += "\n"
+
     if not chunks:
-        return (
-            "I couldn't find relevant code in this repository to answer your question. "
-            "Try rephrasing or asking about a different aspect of the codebase.",
-            [],
+        if not repo_header:
+            return (
+                "I couldn't find relevant code in this repository to answer your question. "
+                "Try rephrasing or asking about a different aspect of the codebase.",
+                [],
+            )
+        # No code chunks but we have a summary — ask Claude to answer from it
+        messages = []
+        for msg in conversation_history[-6:]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        messages.append({
+            "role": "user",
+            "content": f"""{repo_header}No specific code chunks were retrieved for this question.
+
+Question: {question}
+
+Answer using the repository summary and tech stack information above."""
+        })
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        response = client.messages.create(
+            model=settings.LLM_MODEL,
+            max_tokens=2000,
+            system=SYSTEM_PROMPT,
+            messages=messages,
         )
+        return response.content[0].text, []
 
     context_parts = []
     for i, chunk in enumerate(chunks, 1):
@@ -47,14 +78,14 @@ async def answer_question(
 
     messages.append({
         "role": "user",
-        "content": f"""Retrieved code from the repository:
+        "content": f"""{repo_header}Retrieved code from the repository:
 
 {context}
 
 ---
 Question: {question}
 
-Answer based on the code above. Reference specific files and line numbers."""
+Answer based on the repository summary and code above. Reference specific files and line numbers."""
     })
 
     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
