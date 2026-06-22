@@ -19,10 +19,11 @@ def _set_tokens(response: Response, user_id: str):
     access_token = create_access_token(user_id)
     refresh_token = create_refresh_token(user_id)
     secure = settings.ENVIRONMENT == "production"
+    samesite = "none" if settings.ENVIRONMENT == "production" else "lax"
     response.set_cookie("access_token", access_token, httponly=True, secure=secure,
-                        samesite="lax", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+                        samesite=samesite, max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     response.set_cookie("refresh_token", refresh_token, httponly=True, secure=secure,
-                        samesite="lax", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400)
+                        samesite=samesite, max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400)
     return access_token
 
 
