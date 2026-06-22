@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.database import get_db
@@ -23,9 +23,29 @@ async def list_repositories(
     return result.scalars().all()
 
 
+async def _run_ingestion(repository_id: str):
+    from app.services.ingestion_service import ingest_repository
+    from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+    from sqlalchemy.pool import NullPool
+    from app.core.config import settings
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,
+        connect_args={"ssl": "require"} if settings.ENVIRONMENT == "production" else {"ssl": False},
+        poolclass=NullPool,
+    )
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+    try:
+        async with session_factory() as db:
+            await ingest_repository(db, repository_id)
+    finally:
+        await engine.dispose()
+
+
 @router.post("", response_model=RepositoryOut, status_code=201)
 async def add_repository(
     body: AddRepositoryRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -45,8 +65,7 @@ async def add_repository(
     await db.commit()
     await db.refresh(repo)
 
-    from app.workers.tasks import index_repository_task
-    index_repository_task.delay(repo.id)
+    background_tasks.add_task(_run_ingestion, repo.id)
 
     return repo
 
