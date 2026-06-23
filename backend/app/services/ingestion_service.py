@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from pathlib import Path
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,8 +23,8 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
     await db.commit()
 
     try:
-        clone_dir = clone_repository(repo.github_url, repository_id)
-        files = walk_files(clone_dir)
+        clone_dir = await asyncio.to_thread(clone_repository, repo.github_url, repository_id)
+        files = await asyncio.to_thread(walk_files, clone_dir)
 
         file_count = 0
         chunk_count = 0
@@ -60,7 +61,7 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
                     f"File: {relative_path}\n\n{chunk.content}"
                     for chunk in text_chunks
                 ]
-                embeddings = embed_texts(texts)
+                embeddings = await asyncio.to_thread(embed_texts, texts)
 
                 for chunk, embedding in zip(text_chunks, embeddings):
                     db_chunk = Chunk(
