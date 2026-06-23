@@ -1,6 +1,9 @@
 import uuid
 import asyncio
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
@@ -78,7 +81,8 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
 
                 file_count += 1
 
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Failed to process file {file_path}: {e}")
                 continue
 
             if (i + 1) % BATCH_SIZE == 0:
