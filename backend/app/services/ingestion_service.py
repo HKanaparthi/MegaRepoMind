@@ -26,10 +26,10 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
     await db.commit()
 
     try:
-        logger.info(f"[{repository_id}] Cloning {repo.github_url}")
+        logger.warning(f"[{repository_id}] Cloning {repo.github_url}")
         clone_dir = await asyncio.to_thread(clone_repository, repo.github_url, repository_id)
         files = await asyncio.to_thread(walk_files, clone_dir)
-        logger.info(f"[{repository_id}] Found {len(files)} files to process")
+        logger.warning(f"[{repository_id}] Found {len(files)} files to process")
 
         file_count = 0
         chunk_count = 0
@@ -49,7 +49,7 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
                 lines = content.splitlines()
 
                 if file_count % 20 == 0:
-                    logger.info(f"[{repository_id}] Processing file {file_count}: {relative_path}")
+                    logger.warning(f"[{repository_id}] Processing file {file_count}: {relative_path}")
 
                 db_file = RepositoryFile(
                     id=str(uuid.uuid4()),
@@ -98,7 +98,7 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
         except Exception:
             summary, tech_stack = "Repository indexed successfully.", ""
 
-        logger.info(f"[{repository_id}] Indexing complete: {file_count} files, {chunk_count} chunks")
+        logger.warning(f"[{repository_id}] Indexing complete: {file_count} files, {chunk_count} chunks")
         await db.execute(
             update(Repository).where(Repository.id == repository_id).values(
                 status=RepoStatus.ready,
