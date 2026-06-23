@@ -1,13 +1,17 @@
+import logging
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
 _model = None
 
 
 def _get_model():
     global _model
     if _model is None:
+        logger.warning("Loading embedding model from cache...")
         from sentence_transformers import SentenceTransformer
         _model = SentenceTransformer(settings.EMBEDDING_MODEL, local_files_only=True)
+        logger.warning("Embedding model loaded successfully")
     return _model
 
 
