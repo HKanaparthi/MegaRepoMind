@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     ANTHROPIC_API_KEY: str
     GITHUB_TOKEN: str = ""
+    HF_TOKEN: str = ""
     BACKEND_CORS_ORIGINS: str = '["http://localhost:5173"]'
     ENVIRONMENT: str = "development"
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"

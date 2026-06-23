@@ -16,7 +16,6 @@ RUN mkdir -p /tmp/repos && useradd -m appuser && chown -R appuser /tmp/repos
 
 # Pre-download the embedding model and create a readable token file
 # so huggingface_hub doesn't fail at runtime looking for credentials
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" \
-    && mkdir -p /root/.cache/huggingface \
+RUN mkdir -p /root/.cache/huggingface \
     && touch /root/.cache/huggingface/token \
     && chmod 644 /root/.cache/huggingface/token
