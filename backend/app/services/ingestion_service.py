@@ -28,8 +28,11 @@ async def ingest_repository(db: AsyncSession, repository_id: str):
         file_count = 0
         chunk_count = 0
         BATCH_SIZE = 50
+        MAX_FILES = 300
 
         for i, file_path in enumerate(files):
+            if file_count >= MAX_FILES:
+                break
             try:
                 content = file_path.read_text(encoding="utf-8", errors="ignore").replace("\x00", "")
                 if not content.strip():

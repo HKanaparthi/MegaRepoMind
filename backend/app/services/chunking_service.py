@@ -17,7 +17,7 @@ SKIP_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff",
                    ".tar", ".gz", ".lock", ".pyc"}
 
 SKIP_DIRS = {"node_modules", ".git", "__pycache__", ".venv", "venv", "env",
-             "dist", "build", ".next", "coverage", ".pytest_cache"}
+             "dist", "build", ".next", "coverage", ".pytest_cache", "tmp"}
 
 
 @dataclass
