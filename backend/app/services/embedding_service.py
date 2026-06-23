@@ -7,7 +7,7 @@ def _get_model():
     global _model
     if _model is None:
         from sentence_transformers import SentenceTransformer
-        _model = SentenceTransformer(settings.EMBEDDING_MODEL)
+        _model = SentenceTransformer(settings.EMBEDDING_MODEL, local_files_only=True)
     return _model
 
 
