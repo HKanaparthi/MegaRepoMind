@@ -19,3 +19,6 @@ RUN mkdir -p /tmp/repos && useradd -m appuser && chown -R appuser /tmp/repos
 RUN mkdir -p /root/.cache/huggingface \
     && touch /root/.cache/huggingface/token \
     && chmod 644 /root/.cache/huggingface/token
+
+# Pre-download the embedding model so it's baked into the image
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
