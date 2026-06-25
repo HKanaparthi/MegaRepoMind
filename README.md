@@ -4,9 +4,9 @@
 
 ## Demo
 
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](Screenshots/dashboard.png)
 
-![Repository](screenshots/repository.png)
+![Repository](Screenshots/repository.png)
 
 ![Chat](Screenshots/chat.png)
 
