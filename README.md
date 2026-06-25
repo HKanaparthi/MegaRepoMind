@@ -4,8 +4,7 @@
 
 ## Demo
 
-> Add screenshots or a GIF here after recording your demo.
-> Suggested: `screenshots/dashboard.png` and `screenshots/chat.png`
+
 
 ## What It Does
 
