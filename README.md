@@ -4,7 +4,11 @@
 
 ## Demo
 
+![Dashboard](screenshots/dashboard.png)
 
+![Repository](screenshots/repository.png)
+
+![Chat](screenshots/chat.png)
 
 ## What It Does
 
