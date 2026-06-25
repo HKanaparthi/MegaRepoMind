@@ -8,7 +8,7 @@
 
 ![Repository](screenshots/repository.png)
 
-![Chat](screenshots/chat.png)
+![Chat](Screenshots/chat.png)
 
 ## What It Does
 
